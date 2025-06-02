@@ -2,9 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token')
-    }
-
+        SONAR_TOKEN = credentials('SONAR_TOKEN') 
     stages {
         stage('Checkout SCM') {
             steps {
@@ -23,7 +21,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo 'Running Jest tests...'
+                echo 'Running unit tests with Jest...'
                 bat 'npm test'
             }
         }
@@ -47,23 +45,23 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploying the app in a container...'
-                bat 'docker run -d -p 3000:3000 --name devops-container devops-app'
+                echo 'Deploying Docker container...'
+                bat 'docker run -d -p 3000:3000 --name devops-app devops-app'
             }
         }
 
         stage('Release') {
             steps {
-                echo 'Release stage simulated: tagging release.'
-                bat 'git tag -a v1.0 -m "Release version 1.0"'
-                bat 'git push origin v1.0'
+                echo 'Tagging and pushing release...'
+                bat 'git tag -a v1.0.0 -m "Release version 1.0.0"'
+                bat 'git push origin v1.0.0'
             }
         }
 
         stage('Monitoring') {
             steps {
-                echo 'Checking container logs for monitoring...'
-                bat 'docker logs --tail 10 devops-container || echo "Container not running or no logs available"'
+                echo 'Checking application health endpoint...'
+                bat 'curl -I http://localhost:3000 || echo "Service not responding"'
             }
         }
     }
