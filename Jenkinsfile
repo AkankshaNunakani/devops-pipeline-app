@@ -42,19 +42,19 @@ pipeline {
         stage('Security Scan') {
             steps {
                 echo 'Running security scan using npm audit...'
-                // ✔️ Will not fail pipeline if vulnerabilities found
+                
                 bat 'npm audit --audit-level=low || exit 0'
             }
         }
 
-        // Optional: Add these when you're ready
+ 
 
-        // stage('Deploy') {
-        //     steps {
-        //         echo 'Deploying to staging...'
-        //         bat 'docker run -d -p 3000:3000 devops-app'
-        //     }
-        // }
+        stage('Deploy') {
+             steps {
+                 echo 'Deploying to staging...'
+                 bat 'docker run -d -p 3000:3000 devops-app'
+             }
+         }
 
         // stage('Release') {
         //     steps {
