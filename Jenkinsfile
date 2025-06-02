@@ -56,14 +56,16 @@ pipeline {
              }
          }
 
-        // stage('Release') {
-        //     steps {
-        //         echo 'Tagging release...'
-        //         bat 'git tag -a v1.0 -m "Release v1.0"'
-        //         bat 'git push origin v1.0'
-        //     }
-        // }
+        stage('Deploy') {
+    steps {
+        echo 'Stopping old container if running...'
+        bat 'docker stop devops-container || echo "No container to stop"'
+        bat 'docker rm devops-container || echo "No container to remove"'
 
+        echo 'Deploying Docker container...'
+        bat 'docker run -d -p 3000:3000 --name devops-container devops-app'
+    }
+}
         // stage('Monitoring') {
         //     steps {
         //         echo 'Simulated Monitoring: App is up and running'
