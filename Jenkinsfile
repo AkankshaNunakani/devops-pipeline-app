@@ -66,11 +66,9 @@ pipeline {
         bat 'docker run -d -p 3000:3000 --name devops-container devops-app'
     }
 }
-        // stage('Monitoring') {
-        //     steps {
-        //         echo 'Simulated Monitoring: App is up and running'
-        //         // For HD: You can integrate Prometheus, Grafana, or just check app health
-        //     }
-        // }
+        stage('Monitoring') {
+    steps {
+        echo 'Checking container logs for monitoring...'
+        bat 'docker logs --tail 10 devops-container || echo "Container not running or no logs available"'
     }
 }
