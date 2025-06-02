@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('SONAR_TOKEN')
+        SONAR_TOKEN = credentials('SONAR_TOKEN') // Make sure Jenkins ID is SONAR_TOKEN
     }
 
     stages {
@@ -23,7 +23,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo 'Running unit tests with Jest...'
+                echo 'Running Jest tests...'
                 bat 'npm test'
             }
         }
@@ -40,30 +40,22 @@ pipeline {
 
         stage('Security Scan') {
             steps {
-                echo 'Running security scan using npm audit...'
+                echo 'Running npm audit for vulnerabilities...'
                 bat 'npm audit --audit-level=low || exit 0'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying Docker container...'
-                bat 'docker run -d -p 3000:3000 --name devops-app devops-app'
-            }
-        }
-
-        stage('Release') {
-            steps {
-                echo 'Tagging and pushing release...'
-                bat 'git tag -a v1.0.0 -m "Release version 1.0.0"'
-                bat 'git push origin v1.0.0'
+                echo 'Deploying app to Docker container...'
+                bat 'docker run -d -p 3000:3000 --name devops-app-container devops-app'
             }
         }
 
         stage('Monitoring') {
             steps {
-                echo 'Checking application health endpoint...'
-                bat 'curl -I http://localhost:3000 || echo "Service not responding"'
+                echo 'Simulating monitoring stage (e.g., logs or metrics)...'
+                bat 'docker logs devops-app-container'
             }
         }
     }
