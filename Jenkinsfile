@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('SONAR_TOKEN') // ✔️ Use exact ID from Jenkins credentials
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -33,8 +33,7 @@ pipeline {
                 echo 'Running SonarCloud analysis...'
                 withSonarQubeEnv('SonarCloud') {
                     bat 'npm test -- --coverage'
-                    
-                    bat 'sonar-scanner -Dsonar.token=%SONAR_TOKEN%'
+                    bat 'sonar-scanner'
                 }
             }
         }
@@ -42,33 +41,30 @@ pipeline {
         stage('Security Scan') {
             steps {
                 echo 'Running security scan using npm audit...'
-                
                 bat 'npm audit --audit-level=low || exit 0'
             }
         }
 
- 
-
         stage('Deploy') {
-             steps {
-                 echo 'Deploying to staging...'
-                 bat 'docker run -d -p 3000:3000 devops-app'
-             }
-         }
+            steps {
+                echo 'Deploying the app in a container...'
+                bat 'docker run -d -p 3000:3000 --name devops-container devops-app'
+            }
+        }
 
-        stage('Deploy') {
-    steps {
-        echo 'Stopping old container if running...'
-        bat 'docker stop devops-container || echo "No container to stop"'
-        bat 'docker rm devops-container || echo "No container to remove"'
+        stage('Release') {
+            steps {
+                echo 'Release stage simulated: tagging release.'
+                bat 'git tag -a v1.0 -m "Release version 1.0"'
+                bat 'git push origin v1.0'
+            }
+        }
 
-        echo 'Deploying Docker container...'
-        bat 'docker run -d -p 3000:3000 --name devops-container devops-app'
-    }
-}
         stage('Monitoring') {
-    steps {
-        echo 'Checking container logs for monitoring...'
-        bat 'docker logs --tail 10 devops-container || echo "Container not running or no logs available"'
+            steps {
+                echo 'Checking container logs for monitoring...'
+                bat 'docker logs --tail 10 devops-container || echo "Container not running or no logs available"'
+            }
+        }
     }
 }
